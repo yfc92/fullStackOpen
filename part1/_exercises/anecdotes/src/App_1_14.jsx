@@ -43,9 +43,11 @@ const App = () => {
   }
 
   const findHighestVoteIndex = () =>{
-    const maxNumVotes = Math.max(...votes)
-    const retVal = votes.findIndex(vote => vote === maxNumVotes) 
-    return retVal > -1 ? retVal : 0
+    ///const maxNumVotes = Math.max(...votes)
+    ///return votes.indexOf(maxNumVotes)
+    return votes.reduce((highestIndex, currentVoteCount, currentIndex, arr) => 
+      currentVoteCount > arr[highestIndex] ? currentIndex : highestIndex
+    )
   }
 
   const highestVoteAnecdoteIndex = findHighestVoteIndex()

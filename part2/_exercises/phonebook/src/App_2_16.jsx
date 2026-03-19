@@ -10,7 +10,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
-  const [message, setMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const hook = () =>{
     personServices
@@ -25,10 +25,10 @@ const App = () => {
   // console.log('rendering app with persons', persons.length)
 
 
-  const notify = (newMessage) => {
-    setMessage(newMessage)
+  const notifyInfoChanged = (message) => {
+    setErrorMessage(message)
         setTimeout(() => {
-          setMessage(null)
+          setErrorMessage(null)
         }, 5000)
   }
 
@@ -40,19 +40,8 @@ const App = () => {
       personServices
       .update(id, updatedPerson)
       .then(response =>{
-        notify({
-          content: `Phone number has been updated for ${response.name}`,
-          isError: false
-        })
+        notifyInfoChanged(`Phone number has been updated for ${response.name}`)
         setPersons(persons.map(person => person.id === response.id ? response : person))
-      })
-      .catch(error =>{
-        console.log(error)
-        notify({
-          content: `Information of ${updatedPerson.name} has already been removed from server`,
-          isError: true
-        })
-        setPersons(persons.filter(person => person.id !== id))
       })
   }
 
@@ -72,11 +61,7 @@ const App = () => {
     personServices
       .add(newPerson)
       .then(response =>{
-        notify(
-        {
-          content: `Added ${response.name}`,
-          isError: false
-        })
+        notifyInfoChanged(`Added ${response.name}`)
         setPersons(persons.concat(response))
       })
   }
@@ -99,11 +84,6 @@ const App = () => {
     personServices
     .remove(id)
     .then(response => {
-      notify(
-      {
-        content: `Deleted ${response.name}`,
-        isError: false
-      })
       setPersons(persons.filter(person => person.id !== id))
     })
   }
@@ -111,7 +91,7 @@ const App = () => {
   return (
      <div>
       <h2>Phonebook</h2>
-      <Notification message={message}/>
+      <Notification message={errorMessage}/>
       <Filter 
         value={searchFilter} 
         onChange={handleSearchFilterInputChange} />

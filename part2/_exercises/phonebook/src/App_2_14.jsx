@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Notification from './components/Notification'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
@@ -10,7 +9,6 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
-  const [message, setMessage] = useState(null)
 
   const hook = () =>{
     personServices
@@ -24,47 +22,12 @@ const App = () => {
   useEffect(hook, [])
   // console.log('rendering app with persons', persons.length)
 
-
-  const notify = (newMessage) => {
-    setMessage(newMessage)
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
-  }
-
-  const replaceExistingContact = (id, updatedPerson) =>{
-    const confirmed = window.confirm(`${updatedPerson.name} is already 
-      added to the phonebook, replace the old number with a new one?`)
-
-    confirmed &&
-      personServices
-      .update(id, updatedPerson)
-      .then(response =>{
-        notify({
-          content: `Phone number has been updated for ${response.name}`,
-          isError: false
-        })
-        setPersons(persons.map(person => person.id === response.id ? response : person))
-      })
-      .catch(error =>{
-        console.log(error)
-        notify({
-          content: `Information of ${updatedPerson.name} has already been removed from server`,
-          isError: true
-        })
-        setPersons(persons.filter(person => person.id !== id))
-      })
-  }
-
   const addNewContact = (event) =>{
     event.preventDefault()
     //console.log(`new name: ${newName}`)
-    const existingIndex = persons.findIndex(person => person.name === newName)
-    if(existingIndex > -1)
+    if(persons.some(person => person.name === newName))
     {
-      const existingPerson = persons[existingIndex]
-      const updatedPerson = {...existingPerson, number:newNumber }
-      replaceExistingContact(existingPerson.id, updatedPerson)
+      alert(`${newName} is already added to the phonebook`)
       return
     }
 
@@ -72,11 +35,6 @@ const App = () => {
     personServices
       .add(newPerson)
       .then(response =>{
-        notify(
-        {
-          content: `Added ${response.name}`,
-          isError: false
-        })
         setPersons(persons.concat(response))
       })
   }
@@ -99,11 +57,6 @@ const App = () => {
     personServices
     .remove(id)
     .then(response => {
-      notify(
-      {
-        content: `Deleted ${response.name}`,
-        isError: false
-      })
       setPersons(persons.filter(person => person.id !== id))
     })
   }
@@ -111,7 +64,6 @@ const App = () => {
   return (
      <div>
       <h2>Phonebook</h2>
-      <Notification message={message}/>
       <Filter 
         value={searchFilter} 
         onChange={handleSearchFilterInputChange} />

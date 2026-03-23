@@ -51,6 +51,7 @@ app.use(morgan((tokens, req, res) =>{
     tokens['body'](req,res)
   ].join(' ')
 }))
+app.use(express.static('dist'))
 
 app.get('/api/persons', (request, response) =>{
     response.send(persons)

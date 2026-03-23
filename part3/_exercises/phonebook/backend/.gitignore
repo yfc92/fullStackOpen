@@ -11,5 +11,5 @@ yarn-debug.log*
 yarn-error.log*
 
 # Build/Dist output (if using TypeScript or a bundler)
-dist/
+# dist/
 build/

@@ -1,37 +1,31 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const Contact = require('./models/contact')
 
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
-// morgan.token('body', function logBody(req){
-//   //Note that non-post return value needs to be a string with space instead of '', or else morgan will print -
-//   const retVal = req.method === 'POST' ? JSON.stringify(req.body) : " "
-//   console.log('tokenized body:', retVal, "is method post?", req.method === 'POST')
-//   return retVal
-// })
-// app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+// let persons = [
+//     { 
+//       "id": "1",
+//       "name": "Arto Hellas", 
+//       "number": "040-123456"
+//     },
+//     { 
+//       "id": "2",
+//       "name": "Ada Lovelace", 
+//       "number": "39-44-5323523"
+//     },
+//     { 
+//       "id": "3",
+//       "name": "Dan Abramov", 
+//       "number": "12-43-234345"
+//     },
+//     { 
+//       "id": "4",
+//       "name": "Mary Poppendieck", 
+//       "number": "39-23-6423122"
+//     }
+// ]
 
 morgan.token('body', function logBody(req){
   return req.method === 'POST' ? JSON.stringify(req.body) : ''
@@ -54,35 +48,51 @@ app.use(morgan((tokens, req, res) =>{
 app.use(express.static('dist'))
 
 app.get('/api/persons', (request, response) =>{
-    response.send(persons)
+    //response.send(persons)
+
+    Contact.find({})
+    .then(contacts =>{
+      response.send(contacts)
+    })
+
 })
 
-app.get('/info', (request, response) =>{
-  const phonebookInfo = `<p>Phonebook has info for ${persons.length} people</p>`
-  const currentTime = `<p>${new Date().toString()}</p>`
-  response.send(`<div>
-    ${phonebookInfo}
-    ${currentTime}
-    </div`)
-})
+// app.get('/info', (request, response) =>{
+//   const phonebookInfo = `<p>Phonebook has info for ${persons.length} people</p>`
+//   const currentTime = `<p>${new Date().toString()}</p>`
+//   response.send(`<div>
+//     ${phonebookInfo}
+//     ${currentTime}
+//     </div`)
+// })
 
 app.get('/api/persons/:id', (request, response) =>{
   const id = request.params.id
-  const person = persons.find(person => person.id === id)
-  if(person)
-  {
-    response.send(person)
-  }
-  else{
-    response.statusMessage = `No contact found for ${id}`
-    response.status(404).end()
-  }
+  
+  Contact.findById(id)
+         .then(match =>{
+          response.send(match)
+         })
+  
+  // const person = persons.find(person => person.id === id)
+  // if(person)
+  // {
+  //   response.send(person)
+  // }
+  // else{
+  //   response.statusMessage = `No contact found for ${id}`
+  //   response.status(404).end()
+  // }
 })
 
 app.delete('/api/persons/:id',(request, response) =>{
   const id = request.params.id
-  persons = persons.filter(person => person.id !== id)
-  response.status(204).end()
+  Contact.findByIdAndDelete(id)
+         .then(result =>{
+          response.status(204).end()
+         })
+  // persons = persons.filter(person => person.id !== id)
+  // response.status(204).end()
 })
 
 app.post('/api/persons', (request, response) =>{
@@ -92,14 +102,14 @@ app.post('/api/persons', (request, response) =>{
     })
   }
 
-  const generateID = () =>{
-    const newID = String(Math.floor(Math.random() * 1000))
-    if(persons.find(person => person.id === newID)){
-      console.log(`generated id ${newID} exists. generating a new one.`)
-      return generateID()
-    }
-    return newID
-  }
+  // const generateID = () =>{
+  //   const newID = String(Math.floor(Math.random() * 1000))
+  //   if(persons.find(person => person.id === newID)){
+  //     console.log(`generated id ${newID} exists. generating a new one.`)
+  //     return generateID()
+  //   }
+  //   return newID
+  // }
 
   const body = request.body
 
@@ -111,19 +121,27 @@ app.post('/api/persons', (request, response) =>{
     return sendError(response, 'number is missing')
   }
 
-  if(persons.find(person => person.name === body.name)){
-    return sendError(response, 'name must be unique')
-  }
+  // if(persons.find(person => person.name === body.name)){
+  //   return sendError(response, 'name must be unique')
+  // }
 
-  const newContact = {
-    id: generateID(),
+  // const newContact = {
+  //   id: generateID(),
+  //   name: body.name,
+  //   number: body.number,
+  // }
+  // persons = persons.concat(newContact)
+
+  const newContact = new Contact({
     name: body.name,
-    number: body.number,
-  }
-  persons = persons.concat(newContact)
-  response.json(newContact)
+    number: body.number
+  })
+  newContact.save()
+            .then(result =>{
+              response.json(result)
+            })
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT)
 console.log(`Server for Phonebook is running on port ${PORT}`)

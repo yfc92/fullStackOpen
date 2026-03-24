@@ -4,29 +4,6 @@ const morgan = require('morgan')
 const app = express()
 const Contact = require('./models/contact')
 
-// let persons = [
-//     { 
-//       "id": "1",
-//       "name": "Arto Hellas", 
-//       "number": "040-123456"
-//     },
-//     { 
-//       "id": "2",
-//       "name": "Ada Lovelace", 
-//       "number": "39-44-5323523"
-//     },
-//     { 
-//       "id": "3",
-//       "name": "Dan Abramov", 
-//       "number": "12-43-234345"
-//     },
-//     { 
-//       "id": "4",
-//       "name": "Mary Poppendieck", 
-//       "number": "39-23-6423122"
-//     }
-// ]
-
 morgan.token('body', function logBody(req){
   return (req.method === 'POST' || req.method === 'PUT')
         ? JSON.stringify(req.body) : ''
@@ -50,7 +27,7 @@ app.use(express.static('dist'))
 
 app.get('/api/persons', (request, response) =>{
     //response.send(persons)
-
+    
     Contact.find({})
     .then(contacts =>{
       response.send(contacts)
@@ -88,51 +65,24 @@ app.delete('/api/persons/:id',(request, response, next) =>{
   // response.status(204).end()
 })
 
-app.post('/api/persons', (request, response) =>{
+app.post('/api/persons', (request, response, next) =>{
   const sendError = (response, errorMessage) =>{
     response.status(400).json({
       error: errorMessage
     })
   }
 
-  // const generateID = () =>{
-  //   const newID = String(Math.floor(Math.random() * 1000))
-  //   if(persons.find(person => person.id === newID)){
-  //     console.log(`generated id ${newID} exists. generating a new one.`)
-  //     return generateID()
-  //   }
-  //   return newID
-  // }
-
-  const body = request.body
-
-  if(!body.name){
-    return sendError(response, 'name is missing')
-  }
-
-  if(!body.number){
-    return sendError(response, 'number is missing')
-  }
-
-  // if(persons.find(person => person.name === body.name)){
-  //   return sendError(response, 'name must be unique')
-  // }
-
-  // const newContact = {
-  //   id: generateID(),
-  //   name: body.name,
-  //   number: body.number,
-  // }
-  // persons = persons.concat(newContact)
-
+  const {name, number} = request.body
+  
   const newContact = new Contact({
-    name: body.name,
-    number: body.number
+    name: name,
+    number: number
   })
   newContact.save()
             .then(result =>{
               response.json(result)
             })
+            .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) =>{
@@ -155,10 +105,12 @@ app.put('/api/persons/:id', (request, response, next) =>{
 })
 
 const errorHandler = (error, request, response, next) =>{
-  console.error(error.message)
+  console.error(error.message, "Error Name:", error.name)
 
   if(error.name === 'CastError'){
     return response.status(400).send({error:'malformatted id'})
+  } else if (error.name === 'ValidationError'){
+    return response.status(400).json({error:error.message})
   }
 
   next(error)

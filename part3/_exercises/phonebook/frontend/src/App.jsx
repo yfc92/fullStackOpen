@@ -32,6 +32,15 @@ const App = () => {
         }, 5000)
   }
 
+  const notifyError = (error) =>{
+      console.log(error, "message:", error.response.data.error)
+      notify({
+        content: error.response.data.error,
+        isError: true
+      })
+  }
+
+
   const replaceExistingContact = (id, updatedPerson) =>{
     const confirmed = window.confirm(`${updatedPerson.name} is already 
       added to the phonebook, replace the old number with a new one?`)
@@ -46,14 +55,7 @@ const App = () => {
         })
         setPersons(persons.map(person => person.id === response.id ? response : person))
       })
-      .catch(error =>{
-        console.log(error)
-        notify({
-          content: `Information of ${updatedPerson.name} has already been removed from server`,
-          isError: true
-        })
-        setPersons(persons.filter(person => person.id !== id))
-      })
+      .catch(notifyError)
   }
 
   const addNewContact = (event) =>{
@@ -79,6 +81,7 @@ const App = () => {
         })
         setPersons(persons.concat(response))
       })
+      .catch(notifyError)
   }
 
   const handleNewNameInputChange = (event) =>{

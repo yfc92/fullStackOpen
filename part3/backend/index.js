@@ -6,7 +6,7 @@ const Note = require('./models/note')
 app.use(express.json())
 app.use(express.static('dist'))
 
-const requestLogger = (request, response, next) =>{
+const requestLogger = (request, response, next) => {
   console.log('Method', request.method)
   console.log('Path', request.path)
   console.log('Body', request.body)
@@ -16,39 +16,39 @@ const requestLogger = (request, response, next) =>{
 
 app.use(requestLogger)
 
-app.get('/', (request, response) =>{
-    response.send('<h1>Hello World!</h1>')
+app.get('/', (request, response) => {
+  response.send('<h1>Hello World!</h1>')
 })
 
-app.get('/api/notes', (request, response) =>{
-    // response.json(notes)
-    Note.find({})
-        .then(notes =>{
-          response.json(notes)
-        })
+app.get('/api/notes', (request, response) => {
+  // response.json(notes)
+  Note.find({})
+    .then(notes => {
+      response.json(notes)
+    })
 })
 
 app.get('/api/notes/:id', (request, response, next) => {
   const id = request.params.id
 
   Note.findById(id)
-      .then(note =>{
-        if(note){
-          response.json(note)
-        } else {
-          response.status(404).end()
-        }
-      })
-      .catch(error => next(error))
-      // .catch(error =>{
-      //   console.log(error)
-      //   response.status(400).send({error:'malformatted id'})
-      // })
+    .then(note => {
+      if(note){
+        response.json(note)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
+  // .catch(error =>{
+  //   console.log(error)
+  //   response.status(400).send({error:'malformatted id'})
+  // })
 
   // const note = notes.find(note => note.id === id)
-  
+
   // if(note){
-  //   response.json(note)  
+  //   response.json(note)
   // }
   // else{
   //   response.statusMessage = `Note with ${id} does not exist`
@@ -56,23 +56,23 @@ app.get('/api/notes/:id', (request, response, next) => {
   // }
 })
 
-app.delete('/api/notes/:id', (request, response, next) =>{
-    //const id = request.params.id
-    // notes = notes.filter(note => note.id !== id)
-    // response.status(204).end()
-    Note.findByIdAndDelete(request.params.id)
-        .then(result =>{
-          response.status(204).end()
-        })
-        .catch(error => next(error))
+app.delete('/api/notes/:id', (request, response, next) => {
+  //const id = request.params.id
+  // notes = notes.filter(note => note.id !== id)
+  // response.status(204).end()
+  Note.findByIdAndDelete(request.params.id)
+    .then(() => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.post('/api/notes', (request, response, next) => {
   const body = request.body
 
   if (!body.content) {
-    return response.status(400).json({ 
-      error: 'content missing' 
+    return response.status(400).json({
+      error: 'content missing'
     })
   }
 
@@ -82,10 +82,10 @@ app.post('/api/notes', (request, response, next) => {
   })
 
   note.save()
-      .then(savedNote =>{
-        response.json(savedNote)
-      })
-      .catch(error => next(error))
+    .then(savedNote => {
+      response.json(savedNote)
+    })
+    .catch(error => next(error))
 
   // const note = {
   //   content: body.content,
@@ -117,19 +117,19 @@ app.put('/api/notes/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-const unknownEndpoint = (request, response) =>{
-  response.status(404).send({error: 'unknown endpoint'})
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
 }
 app.use(unknownEndpoint)
 
 
-const errorHandler = (error, request, response, next) =>{
+const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if(error.name === 'CastError'){
-    return response.status(400).send({error:'malformatted id'})
+    return response.status(400).send({ error:'malformatted id' })
   } else if (error.name === 'ValidationError'){
-    return response.status(400).json({error: error.message})
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)

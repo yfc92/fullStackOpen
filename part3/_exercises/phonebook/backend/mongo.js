@@ -28,18 +28,18 @@ if(isAdding){
     name: process.argv[3],
     number: process.argv[4]
   })
-  newPerson.save().then(result =>{
+  newPerson.save().then(() => {
     console.log(`added ${newPerson.name} number ${newPerson.number} to phonebook`)
     mongoose.connection.close()
   })
 }
 
 if(isGettingList){
-  Contact.find({}).then(result =>{
+  Contact.find({}).then(result => {
     console.log('phonebook:')
     result.forEach(contact => {
       console.log(`${contact.name} ${contact.number}`)
-    });
+    })
     mongoose.connection.close()
   })
 }

@@ -96,12 +96,13 @@ const App = () => {
   }
 
   const deletePerson = (id) => {
+    const personName = persons.find(person => person.id === id)?.name
     personServices
     .remove(id)
     .then(response => {
       notify(
       {
-        content: `Deleted ${response.name}`,
+        content: `Deleted ${personName}`,
         isError: false
       })
       setPersons(persons.filter(person => person.id !== id))

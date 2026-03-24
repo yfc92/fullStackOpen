@@ -28,7 +28,8 @@ const Contact = require('./models/contact')
 // ]
 
 morgan.token('body', function logBody(req){
-  return req.method === 'POST' ? JSON.stringify(req.body) : ''
+  return (req.method === 'POST' || req.method === 'PUT')
+        ? JSON.stringify(req.body) : ''
 })
 
 // needed to convert request bodies to json directly. 
@@ -66,31 +67,23 @@ app.get('/api/persons', (request, response) =>{
 //     </div`)
 // })
 
-app.get('/api/persons/:id', (request, response) =>{
+app.get('/api/persons/:id', (request, response, next) =>{
   const id = request.params.id
   
   Contact.findById(id)
          .then(match =>{
           response.send(match)
          })
-  
-  // const person = persons.find(person => person.id === id)
-  // if(person)
-  // {
-  //   response.send(person)
-  // }
-  // else{
-  //   response.statusMessage = `No contact found for ${id}`
-  //   response.status(404).end()
-  // }
+         .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id',(request, response) =>{
+app.delete('/api/persons/:id',(request, response, next) =>{
   const id = request.params.id
   Contact.findByIdAndDelete(id)
          .then(result =>{
           response.status(204).end()
          })
+         .catch(error => next(error))
   // persons = persons.filter(person => person.id !== id)
   // response.status(204).end()
 })
@@ -141,6 +134,38 @@ app.post('/api/persons', (request, response) =>{
               response.json(result)
             })
 })
+
+app.put('/api/persons/:id', (request, response, next) =>{
+  const {name, number} = request.body
+  Contact
+    .findById(request.params.id)
+    .then(contact =>{
+      if(!contact)
+      {
+        return response.status(404).end()
+      }
+      contact.name = name
+      contact.number = number
+      return contact.save()
+            .then(updateResult =>{
+              response.json(updateResult)
+            })
+    })
+    .catch(error => next(error))
+})
+
+const errorHandler = (error, request, response, next) =>{
+  console.error(error.message)
+
+  if(error.name === 'CastError'){
+    return response.status(400).send({error:'malformatted id'})
+  }
+
+  next(error)
+}
+
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT)

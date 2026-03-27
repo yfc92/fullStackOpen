@@ -6,7 +6,6 @@ const app = require('../app')
 const api = supertest(app)
 const testHelper = require('./test_helper')
 const Blog = require('../models/blog')
-const { nonExistingId } = require('../../../backend/tests/test_helper')
 
 beforeEach(async () => {
   //delete all existing

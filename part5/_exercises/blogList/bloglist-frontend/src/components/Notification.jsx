@@ -3,7 +3,7 @@ const Notification = ({ message }) => {
     return null
   }
 
-  const className = message.isError ? "error" : "statusUpdate"
+  const className = message.isError ? 'error' : 'statusUpdate'
   return (
     <div className={className}>
       {message.content}

@@ -29,6 +29,7 @@ test('Create blog event is called with the right blog details',
     await user.click(createButton)
 
     expect(createBlogMockHandler.mock.calls).toHaveLength(1)
+    // eslint-disable-next-line no-unused-vars
     const { likes, ...blogDataWithNoLikes } = testBlogData
     console.log(createBlogMockHandler.mock.calls)
     assert.deepStrictEqual(

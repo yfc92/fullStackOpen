@@ -14,8 +14,8 @@ const Blog = ({ blog, addLike, removeBlog }) => {
 
   const details = () => (
     <div>
-      <p>{blog.url}</p>
-      <p>likes {blog.likes} <button onClick={addLike}>like</button></p>
+      <p id='blog-url'>{blog.url}</p>
+      <p id='blog-likes'>likes {blog.likes} <button onClick={addLike}>like</button></p>
       {blog.user && <p>{blog.user.name}</p>}
       <button onClick={removeBlog}>remove</button>
     </div>

@@ -1,5 +1,8 @@
 {
     "github.copilot.nextEditSuggestions.enabled": false,
     "github.copilot.nextEditSuggestions.fixes": false,
-    "eslint.workingDirectories": [{ "mode": "auto" }]
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+    "[javascript]": {
+        "editor.tabSize": 2
+    }
 }

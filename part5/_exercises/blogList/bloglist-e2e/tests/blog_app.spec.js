@@ -151,27 +151,32 @@ describe('Blog app', () => {
           }
         }
 
-        // //get all the like rows
-        const likeLocators = await page.getByText(/likes: \d+/i).all()
+        const likeTexts = await page.getByText(/likes \d+/i).allTextContents();
+        const actualLikes = likeTexts.map(text => parseInt(text.match(/\d+/)[0], 10));
+        const sortedLikes = [...actualLikes].sort((a, b) => b - a);
+        await expect(actualLikes).toEqual(sortedLikes);
 
-        // //retrieve number array for likes
-        let allLikes = []
-        for(const likeLocator of likeLocators){
-          const text = await likeLocator.textContent()
-          const match = text.match(/\d+/);
-          const parsedInt = match ? parseInt(match[0], 10): null
+        // // //get all the like rows
+        // const likeLocators = await page.getByText(/likes: \d+/i).all()
 
-          await expect(parsedInt).toBeTruthy()
-          allLikes.push(parsedInt)
-        }
+        // // //retrieve number array for likes
+        // let allLikes = []
+        // for(const likeLocator of likeLocators){
+        //   const text = await likeLocator.textContent()
+        //   const match = text.match(/\d+/);
+        //   const parsedInt = match ? parseInt(match[0], 10): null
+
+        //   await expect(parsedInt).toBeTruthy()
+        //   allLikes.push(parsedInt)
+        // }
         
-        //make sure that the order of these like rows matches the intended order (most likes first)
-        const isDescending = allLikes.every((currentLikes, i) =>{
-          if(i === allLikes.length - 1) return true
-          return currentLikes >= allLikes[i + 1]
-        })
+        // //make sure that the order of these like rows matches the intended order (most likes first)
+        // const isDescending = allLikes.every((currentLikes, i) =>{
+        //   if(i === allLikes.length - 1) return true
+        //   return currentLikes >= allLikes[i + 1]
+        // })
 
-        await expect(isDescending).toBe(true)
+        // awaitexpect(isDescending).toBe(true)
       })
     })
   })

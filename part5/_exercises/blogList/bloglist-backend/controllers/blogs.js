@@ -31,7 +31,7 @@ blogsRouter.post('/', async (request, response) => {
     user: dbUser.id
   })
 
-
+  // console.log('creating new blog', blog)
   const savedBlog = await blog.save()
 
   dbUser.blogs = dbUser.blogs.concat(blog._id)
@@ -82,6 +82,7 @@ blogsRouter.put('/:id', async (request, response) => {
     return response.status(404).end()
   }
   Object.assign(blog, { title, url, likes, author, user })
+  console.log('updated blog', blog)
   await blog.save()
   await blog.populate('user', { username:1, name:1, id:1 })
   response.json(blog)

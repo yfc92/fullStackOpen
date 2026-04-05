@@ -30,8 +30,8 @@ const App = () => {
   }
 
   useEffect(() => {
-    refreshBlogList()
-  }, [])
+    if(user) refreshBlogList()
+  }, [user])
 
   useEffect(() => {
     const userJSON = window.localStorage.getItem(user_localStorageKey)
@@ -110,7 +110,7 @@ const App = () => {
   const loggedInPage = () => {
     return(
       <div>
-        <p>{user.name} logged in <button onClick={handleLogout}>log out</button></p>
+        <p>{user.name} logged in<button onClick={handleLogout}>log out</button></p>
       </div>
     )
   }
@@ -120,7 +120,8 @@ const App = () => {
     try{
       blogFormToggleRef.current.toggleVisibility()
       const newBlog = await blogService.createNew(blogData)
-      setBlogs(blogs.concat(newBlog))
+      console.log('new blog created', newBlog)
+      refreshBlogList()
       notify({
         content: `A new blog ${newBlog.title} by ${newBlog.author} added`,
         isError: false
@@ -143,7 +144,7 @@ const App = () => {
   const handleAddLike = async (blog) => {
     ///only send user's id string in request data
     const toSend = { ...blog, likes: blog.likes+1, user: blog.user?.id }
-    // console.log('handle add like, data before sending', toSend)
+    console.log('handle add like, data before sending', toSend)
     const updatedBlog = await blogService.update(toSend)
     // console.log('Updated blog:', updatedBlog)
     setBlogs(blogs.map((tBlog) => {
@@ -152,10 +153,22 @@ const App = () => {
     }))
   }
 
+  const checkRemovable = (blog) => {
+    // console.log('check removable. user:', user, ' blog user:',blog.user)
+    if(!user || !blog.user) return false
+    return user.username === blog.user.username
+  }
+
   const removeBlog = async (blog) => {
-    window.confirm(`Remove blog ${blog.title} by ${blog.author}`)
-    await blogService.remove(blog.id)
-    refreshBlogList()
+    const confirmed = window.confirm(`Remove blog ${blog.title} by ${blog.author}`)
+    if(confirmed){
+      await blogService.remove(blog.id)
+      refreshBlogList()
+      notify({
+        content: `Blog ${blog.title} by ${blog.author} has been deleted`,
+        isError: false
+      })
+    }
   }
 
   return (
@@ -164,8 +177,12 @@ const App = () => {
       <Notification message={systemMessage} />
       {loggedInPage()}
       {createNewBlog()}
-      {blogs.sort((a,b) => a.likes - b.likes).map(blog =>
-        <Blog key={blog.id} blog={blog} addLike={() => handleAddLike(blog)} removeBlog={() => removeBlog(blog)} />
+      {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
+        <Blog key={blog.id}
+          blog={blog}
+          addLike={() => handleAddLike(blog)}
+          canRemove={checkRemovable(blog)}
+          removeBlog={() => removeBlog(blog)} />
       )}
     </div>
   )

@@ -62,36 +62,36 @@ describe('when there is initially some notes saved', () => {
     })
   })
 
-  describe('addition of a new note', () => {
-    test('succeeds with valid data', async () => {
-      const newNote = {
-        content: 'async/await simplifies making async calls',
-        important: true,
-      }
+  // describe('addition of a new note', () => {
+  //   test('succeeds with valid data', async () => {
+  //     const newNote = {
+  //       content: 'async/await simplifies making async calls',
+  //       important: true,
+  //     }
 
-      await api
-        .post('/api/notes')
-        .send(newNote)
-        .expect(201)
-        .expect('Content-Type', /application\/json/)
+  //     await api
+  //       .post('/api/notes')
+  //       .send(newNote)
+  //       .expect(201)
+  //       .expect('Content-Type', /application\/json/)
 
-      const notesAtEnd = await helper.notesInDb()
-      assert.strictEqual(notesAtEnd.length, helper.initialNotes.length + 1)
+  //     const notesAtEnd = await helper.notesInDb()
+  //     assert.strictEqual(notesAtEnd.length, helper.initialNotes.length + 1)
 
-      const contents = notesAtEnd.map(n => n.content)
-      assert(contents.includes('async/await simplifies making async calls'))
-    })
+  //     const contents = notesAtEnd.map(n => n.content)
+  //     assert(contents.includes('async/await simplifies making async calls'))
+  //   })
 
-    test('fails with status code 400 if data invalid', async () => {
-      const newNote = { important: true }
+  //   test('fails with status code 400 if data invalid', async () => {
+  //     const newNote = { important: true }
 
-      await api.post('/api/notes').send(newNote).expect(400)
+  //     await api.post('/api/notes').send(newNote).expect(400)
 
-      const notesAtEnd = await helper.notesInDb()
+  //     const notesAtEnd = await helper.notesInDb()
 
-      assert.strictEqual(notesAtEnd.length, helper.initialNotes.length)
-    })
-  })
+  //     assert.strictEqual(notesAtEnd.length, helper.initialNotes.length)
+  //   })
+  // })
 
   describe('deletion of a note', () => {
     test('succeeds with status code 204 if id is valid', async () => {

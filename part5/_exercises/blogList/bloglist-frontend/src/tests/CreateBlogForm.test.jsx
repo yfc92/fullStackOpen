@@ -17,21 +17,21 @@ test('Create blog event is called with the right blog details',
     render(<CreateBlogForm createBlog={createBlogMockHandler}/>)
 
     const user = userEvent.setup()
-    const titleInput = screen.getByLabelText('title:')
+    const titleInput = screen.getByLabelText('title')
     await user.type(titleInput, testBlogData.title)
-    const authorInput = screen.getByLabelText('author:')
+    const authorInput = screen.getByLabelText('author')
     await user.type(authorInput, testBlogData.author)
-    const urlInput = screen.getByLabelText('url:')
+    const urlInput = screen.getByLabelText('url')
     await user.type(urlInput, testBlogData.url)
 
-    screen.debug()
+    // screen.debug()
     const createButton = screen.getByText('create')
     await user.click(createButton)
 
     expect(createBlogMockHandler.mock.calls).toHaveLength(1)
     // eslint-disable-next-line no-unused-vars
     const { likes, ...blogDataWithNoLikes } = testBlogData
-    console.log(createBlogMockHandler.mock.calls)
+    // console.log(createBlogMockHandler.mock.calls)
     assert.deepStrictEqual(
       createBlogMockHandler.mock.calls[0][0],
       blogDataWithNoLikes)

@@ -1,4 +1,6 @@
 // import { useState } from 'react'
+import { TextField, Button, Stack, Typography, Box, Paper, Link } from '@mui/material'
+
 
 const Blog = ({ blog, user, addLike, removeBlog }) => {
 
@@ -14,17 +16,47 @@ const Blog = ({ blog, user, addLike, removeBlog }) => {
   }
   const canRemove = checkRemovable(user, blog)
 
+  // <h2>{blog.author}: {blog.title}</h2>
+  //     <a href={blog.url} id='blog-url'>{blog.url}</a>
+  //     <p id='blog-likes'>
+  //       likes {blog.likes}
+  //       {isLoggedIn && <button onClick={addLike}>like</button>}
+  //     </p>
+  //     {blog.user && <p>Added by {blog.user.name}</p>}
+  //     {canRemove && <button onClick={removeBlog}>remove</button>}
   return(
-    <>
-      <h2>{blog.author}: {blog.title}</h2>
-      <a href={blog.url} id='blog-url'>{blog.url}</a>
-      <p id='blog-likes'>
-        likes {blog.likes}
-        {isLoggedIn && <button onClick={addLike}>like</button>}
-      </p>
-      {blog.user && <p>Added by {blog.user.name}</p>}
-      {canRemove && <button onClick={removeBlog}>remove</button>}
-    </>
+    <Box
+      sx={{
+        lineHeight: 2,
+        mt:1
+      }}
+    >
+      <Paper elevation={2} sx={{ p: 1 }}>
+        <Typography variant="h6" component="h6">
+          {blog.title}
+        </Typography>
+        <Typography variant="string" component="div">
+          by {blog.author}
+        </Typography>
+        <Link href={blog.url} id='blog-url'>{blog.url}</Link>
+        {blog.user &&
+          <Typography variant="string" component="div">
+            Added by {blog.user.name}
+          </Typography>}
+        <Stack
+          direction='row'
+          spacing={1}
+          alignitems='center'
+          sx={{ width: 'fit-content' }}
+        >
+          <Typography variant="string" component="p" sx={{ fontWeight:'bold' }}>
+            {blog.likes} likes
+          </Typography>
+          {isLoggedIn && <Button variant='outlined' onClick={addLike}>like</Button>}
+          {canRemove && <Button variant='outlined' color='error' onClick={removeBlog}>remove</Button>}
+        </Stack>
+      </Paper>
+    </Box>
   )
 
   // const [detailsShown, setDetailsShown] = useState(false)

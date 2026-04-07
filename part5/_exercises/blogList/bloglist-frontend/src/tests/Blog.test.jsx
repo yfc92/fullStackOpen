@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import Blog from '../components/Blog'
-import { expect, test, vi } from 'vitest'
-import userEvent from '@testing-library/user-event'
+import { expect, test } from 'vitest'
 
 const testBlogData = {
   title:'testTitle',
@@ -20,11 +19,12 @@ const testUser = {
 test('Unauthenticated users see blog info but no buttons', () => {
   render(<Blog blog={testBlogData} />)
   //header
-  screen.getByText(`${testBlogData.author}: ${testBlogData.title}`)
+  screen.getByText(`${testBlogData.title}`)
+  screen.getByText(`by ${testBlogData.author}`)
   //url
   screen.getByText(testBlogData.url)
   //likes
-  screen.getByText(`likes ${testBlogData.likes}`)
+  screen.getByText(`${testBlogData.likes} likes`)
 
   //like button is absent
   const likeButton = screen.queryByRole('button', { name:/like/i })

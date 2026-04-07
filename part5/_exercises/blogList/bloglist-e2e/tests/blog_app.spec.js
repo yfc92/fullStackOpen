@@ -2,8 +2,7 @@ const { test, expect, beforeEach, describe } = require('@playwright/test')
 const { 
   loginWith, 
   createBlog, 
-  openBlogFromList,
-  openBlogLink
+  getBlogLink
 } = require('./helper')
 const { title } = require('node:process')
 
@@ -29,26 +28,21 @@ describe('Blog app', () => {
 
   describe('Login', () =>{
     test('succeeds with correct username/password', async ({page}) =>{
-      await page.getByRole('link', { name: `login` }).click()
       await loginWith(page, 'testUser1', 'testUser1Password')
-      await expect(page.getByRole('link',{ name:'new blog'})).toBeVisible()
+      await expect(page.getByRole('button',{ name:'new blog'})).toBeVisible()
       await expect(page.getByRole('button',{ name:'log out'})).toBeVisible()
     })
 
     test('fails with incorrect username/password', async ({page}) =>{
-      await page.getByRole('link', { name: `login` }).click()
       await loginWith(page, 'testUser1', 'wrong')
       await expect(page.locator('.error')).toContainText(`Wrong username or password`)
-      await expect(page.getByRole('link',{ name:'login'})).toBeVisible()
-      //verify wrong password
     })
   })
 
   describe('when logged in', () =>{
     beforeEach(async ({ page }) => {
-      await page.getByRole('link', { name: `login` }).click()
       await loginWith(page, 'testUser1', 'testUser1Password')
-      await expect(page.getByRole('link',{ name:'new blog'})).toBeVisible()
+      await expect(page.getByRole('button',{ name:'new blog'})).toBeVisible()
     })
 
     test('can create a blog', async ({page}) =>{
@@ -61,7 +55,7 @@ describe('Blog app', () => {
         url: 'testUser1Url'
       }
       await createBlog(page, testBlog)
-      await expect(page.getByRole('link', {name:`${testBlog.title} by ${testBlog.author}`})).toBeVisible()
+      await expect(getBlogLink(page, testBlog.title, testBlog.author)).toBeVisible()
     })
 
     describe('When there are existing blogs', () =>{
@@ -81,22 +75,22 @@ describe('Blog app', () => {
         //click on an existing blog
         
         const verifyLike = async () => {
-          await expect(page.getByText('likes 0')).toBeVisible()
+          await expect(page.getByText('0 likes')).toBeVisible()
           await page.getByRole('button', {name:'like'}).click()
           // await likeButtonRow.waitFor()
-          await expect(page.getByText('likes 1')).toBeVisible()
+          await expect(page.getByText('1 likes')).toBeVisible()
         }
 
-        await openBlogLink(page, 'existing test blog 0', 'Test User 1')
+        await getBlogLink(page, 'existing test blog 0', 'Test User 1').click()
 
         //click on an existing blog
         await verifyLike()
 
-        await page.getByRole('link', { name: `blogs` }).click()
-        await expect(page.getByRole('link', {name:'existing test blog 1 by Test User 1'})).toBeVisible()
+        await page.getByRole('button', { name: `blogs` }).click()
+        await expect(getBlogLink(page, 'existing test blog 1', 'Test User 1')).toBeVisible()
         
         //click on another existing blog
-        await openBlogLink(page, 'existing test blog 1', 'Test User 1')
+        await getBlogLink(page, 'existing test blog 1', 'Test User 1').click()
         await verifyLike()
       })
 
@@ -111,10 +105,10 @@ describe('Blog app', () => {
         const blogTitle = 'existing test blog 0'
         const blogAuthor = 'Test User 1'
 
-        await openBlogLink(page, blogTitle, blogAuthor)
+        await getBlogLink(page, blogTitle, blogAuthor).click()
         await page.getByRole('button', {name:'remove'}).click()
         await expect(page.locator('.statusUpdate')).toContainText(`Blog ${blogTitle} by ${blogAuthor} has been deleted`)
-        await expect(page.getByRole('link', {name:`${blogTitle} by ${blogAuthor}`})).not.toBeVisible()
+        await expect(getBlogLink(page, blogTitle, blogAuthor)).not.toBeVisible()
       })
     })
   })

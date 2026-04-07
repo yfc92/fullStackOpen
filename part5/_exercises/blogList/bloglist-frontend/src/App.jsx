@@ -3,19 +3,22 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
-import Togglable from './components/Togglable'
 import CreateBlogForm from './components/CreateBlogForm'
 import {
   Routes, Route, Link,
-  useNavigate, useMatch }
-  from 'react-router-dom'
+  useNavigate, useMatch } from 'react-router-dom'
+import {
+  Container,
+  AppBar,
+  Toolbar,
+  Typography,
+  Button } from '@mui/material'
+import Login from './components/Login'
 
 const user_localStorageKey = 'user'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [systemMessage, setSystemMessage] = useState(null)
   // const blogFormToggleRef = useRef()
@@ -51,8 +54,7 @@ const App = () => {
   }, [])
 
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const handleLogin = async (username, password) => {
 
     try{
       const user = await loginService.login({ username, password })
@@ -60,8 +62,6 @@ const App = () => {
       window.localStorage.setItem(user_localStorageKey, JSON.stringify(user))
       blogService.setAuthToken(user.token)
       setUser(user)
-      setUsername('')
-      setPassword('')
       navigate('/')
     } catch (error){
       console.log('Error while logging in', error)
@@ -71,44 +71,6 @@ const App = () => {
       })
     }
   }
-
-  const loginForm = () => {
-    return(
-      <>
-        <form onSubmit={handleLogin}>
-          <div>
-            <h2>Log in to application</h2>
-            <Notification message={systemMessage} />
-            <div>
-              <label>
-                username
-                <input
-                  type='text'
-                  value={username}
-                  onChange={({ target }) => setUsername(target.value)}
-                />
-              </label>
-            </div>
-            <div>
-              <label>
-                password
-                <input
-                  type='password'
-                  value={password}
-                  onChange={({ target }) => setPassword(target.value)}
-                />
-              </label>
-            </div>
-          </div>
-          <button type='submit'>login</button>
-        </form>
-      </>
-    )
-  }
-
-  // if(user === null){
-  //   return loginForm()
-  // }
 
   const handleLogout = () => {
     setUser(null)
@@ -196,7 +158,6 @@ const App = () => {
     return(
       <div>
         <h2>blogs</h2>
-        <Notification message={systemMessage} />
         <ul>
           {blogs.sort((a,b) => b.likes - a.likes)
             .map(blog => {
@@ -211,19 +172,32 @@ const App = () => {
       </div>
     )}
 
-  const padding = {
-    padding: 5
-  }
+  // const padding = {
+  //   padding: 5
+  // }
+
+  //       <div>
+  //       <Link style={padding} to='/'>blogs</Link>
+  //       {!user && <Link style={padding} to='/login'>login</Link>}
+  //       {user && <Link style={padding} to='/create'>new blog</Link>}
+  //       {user && <button onClick={handleLogout}>log out</button>}
+  //     </div>
   return (
-    <>
-      <div>
-        <Link style={padding} to='/'>blogs</Link>
-        {!user && <Link style={padding} to='/login'>login</Link>}
-        {user && <Link style={padding} to='/create'>new blog</Link>}
-        {user && <button onClick={handleLogout}>log out</button>}
-      </div>
+    <Container>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Blog App
+          </Typography>
+          <Button color="inherit" onClick={() => navigate('/')}>blogs</Button>
+          {!user && <Button color="inherit" onClick={() => navigate('/login')}>Login</Button>}
+          {user && <Button color="inherit" onClick={() => navigate('/create')}>new blog</Button>}
+          {user && <Button color="inherit" onClick={handleLogout}>log out</Button>}
+        </Toolbar>
+      </AppBar>
+      <Notification message={systemMessage} />
       <Routes>
-        <Route path='/login' element={loginForm()}/>
+        <Route path='/login' element={<Login handleLogin={handleLogin}/>}/>
         <Route path='/' element={blogList()}/>
         <Route path='/blogs/:id'
           element={<Blog key={idMatchedBlog?.id}
@@ -234,7 +208,7 @@ const App = () => {
           }/>
         <Route path='/create' element={<CreateBlogForm createBlog={handleCreate} />}/>
       </Routes>
-    </>
+    </Container>
   )
 }
 

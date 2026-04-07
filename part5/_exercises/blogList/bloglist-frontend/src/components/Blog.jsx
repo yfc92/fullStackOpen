@@ -32,15 +32,15 @@ const Blog = ({ blog, user, addLike, removeBlog }) => {
       }}
     >
       <Paper elevation={2} sx={{ p: 1 }}>
-        <Typography variant="h6" component="h6">
+        <Typography variant="h6">
           {blog.title}
         </Typography>
-        <Typography variant="string" component="div">
+        <Typography variant="subtitle1">
           by {blog.author}
         </Typography>
         <Link href={blog.url} id='blog-url'>{blog.url}</Link>
         {blog.user &&
-          <Typography variant="string" component="div">
+          <Typography variant="body2" component="p">
             Added by {blog.user.name}
           </Typography>}
         <Stack
@@ -49,7 +49,7 @@ const Blog = ({ blog, user, addLike, removeBlog }) => {
           alignitems='center'
           sx={{ width: 'fit-content' }}
         >
-          <Typography variant="string" component="p" sx={{ fontWeight:'bold' }}>
+          <Typography variant="body2" component="p" sx={{ fontWeight:'bold', alignContent:'center' }}>
             {blog.likes} likes
           </Typography>
           {isLoggedIn && <Button variant='outlined' onClick={addLike}>like</Button>}

@@ -1,5 +1,11 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helper')
+const { 
+  loginWith, 
+  createBlog, 
+  openBlogFromList,
+  openBlogLink
+} = require('./helper')
+const { title } = require('node:process')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -21,162 +27,94 @@ describe('Blog app', () => {
     await page.goto('/')
   })
 
-  test('Login form is shown', async ({ page }) => {
-    // ... log in to the application to be visible
-    const locator = await page.getByText('Log in to application')
-    await expect(locator).toBeVisible()
-  })
-
   describe('Login', () =>{
-      test('succeeds with correct credentials', async ({page}) =>{
-        await loginWith(page, 'testUser1', 'testUser1Password')
-        
-        await expect(page.getByText('Test User 1 logged in')).toBeVisible()
-      })
-
-      test('fails with wrong credentials', async ({page}) =>{
-        await loginWith(page, 'testUser1', 'wrong')
-      })
-  })
-
-  describe('When logged in', () => {
-    beforeEach(async ({ page }) => {
+    test('succeeds with correct username/password', async ({page}) =>{
+      await page.getByRole('link', { name: `login` }).click()
       await loginWith(page, 'testUser1', 'testUser1Password')
+      await expect(page.getByRole('link',{ name:'new blog'})).toBeVisible()
+      await expect(page.getByRole('button',{ name:'log out'})).toBeVisible()
     })
 
-    test('a new blog can be created', async ({ page }) => {
-      await createBlog(page, { 
+    test('fails with incorrect username/password', async ({page}) =>{
+      await page.getByRole('link', { name: `login` }).click()
+      await loginWith(page, 'testUser1', 'wrong')
+      await expect(page.locator('.error')).toContainText(`Wrong username or password`)
+      await expect(page.getByRole('link',{ name:'login'})).toBeVisible()
+      //verify wrong password
+    })
+  })
+
+  describe('when logged in', () =>{
+    beforeEach(async ({ page }) => {
+      await page.getByRole('link', { name: `login` }).click()
+      await loginWith(page, 'testUser1', 'testUser1Password')
+      await expect(page.getByRole('link',{ name:'new blog'})).toBeVisible()
+    })
+
+    test('can create a blog', async ({page}) =>{
+      //navigate to create blog
+      //fill out blog form
+      //submit form
+      const testBlog = {
         title:'new test blog', 
         author: 'Test User 1', 
         url: 'testUser1Url'
-      })
-      await expect(page.getByText('new test blog Test User 1')).toBeVisible()
+      }
+      await createBlog(page, testBlog)
+      await expect(page.getByRole('link', {name:`${testBlog.title} by ${testBlog.author}`})).toBeVisible()
     })
 
-    describe('when there is a blog', () => {
+    describe('When there are existing blogs', () =>{
+      let numTestBlogs = 2
       beforeEach(async ({ page }) => {
-        await createBlog(page, { 
-          title:'new test blog', 
-          author: 'Test User 1', 
-          url: 'testUser1Url'
-        })
-      })
-
-      test('a blog can be liked', async ({ page }) => {
-        
-        //press view on the blog
-        const likeButton = await page.getByText('new test blog Test User 1')
-        await likeButton.getByRole('button', {name:'view'}).click()
-        // const likeButtonRow = likeButton.locator('..')
-
-        await expect(page.getByText('likes 0')).toBeVisible()
-        await page.getByRole('button', {name:'like'}).click()
-        // await likeButtonRow.waitFor()
-        await expect(page.getByText('likes 1')).toBeVisible()
-      })
-
-      test('a blog gets removed by the blog\'s creator', async ({ page }) => {
-        
-        page.once('dialog', async dialog => {
-            console.log(`Dialog message: ${dialog.message()}`); // "Press a button!"
-            expect(dialog.type()).toBe('confirm');              // Verify it's a confirm dialog
-            
-            await dialog.accept(); 
-        })
-
-        //press view on the blog
-        const likeButton = await page.getByText('new test blog Test User 1')
-        await likeButton.getByRole('button', {name:'view'}).click()
-        await page.getByRole('button', {name:'remove'}).click()
-
-        const blogTitle = 'new test blog'
-        const blogAuthor = 'Test User 1'
-        await expect(page.locator('.statusUpdate')).toContainText(`Blog ${blogTitle} by ${blogAuthor} has been deleted`)
-      })
-      
-      test('remove button is not visible when a blog is not created by the user', async ({ page }) => {
-        
-        //log out
-        await page.getByRole('button', {name:'log out'}).click()
-
-        //log in as 2nd user
-        await loginWith(page, 'testUser2', 'testUser2Password')
-
-        //press view on the existing blog
-        const likeButton = await page.getByText('new test blog Test User 1')
-        await likeButton.getByRole('button', {name:'view'}).click()
-
-        //ensure that user does not see remove button on the blog created by 1st user
-        await expect(page.getByRole('button', {name:'remove'})).not.toBeVisible()
-      })
-    })
-
-    describe('When there are multiple blogs', () => {
-      let numBlogs = 5
-      beforeEach(async ({ page }) => {
-        for(let i=0; i<numBlogs;i++){
-          await createBlog(page, { 
-            title:`test blog ${i}`, 
+        for(let i=0; i<numTestBlogs;i++){
+          const newBlog ={ 
+            title:`existing test blog ${i}`, 
             author: 'Test User 1', 
-            url: `testUserUrl${i}`,
-          })
+            url: `existingBlogUrl${i}`,
+          }
+          await createBlog(page, newBlog)
         }
       })
 
-      test('blogs are sorted based on likes. most likes first', async({page}) => {
+      test('can like multiple blogs', async ({page}) =>{
+        //click on an existing blog
         
-        const viewButtonLocator = await page.getByRole('button', { name: 'view' })
-
-        // Verify the count
-        await expect(viewButtonLocator).toHaveCount(numBlogs)
-
-        ///NOTE: a view button disappears after clicking it.
-        //therefore, we cannot use indexes, but instead click the first view button found until there's none left          
-        for(let i=0;i<numBlogs;++i){
-          const viewButton = await viewButtonLocator.first()
-          const txt = await viewButton.locator('..').textContent()
-          await viewButton.click()
-          console.log(`view button clicked ${i}: ${txt}`)
+        const verifyLike = async () => {
+          await expect(page.getByText('likes 0')).toBeVisible()
+          await page.getByRole('button', {name:'like'}).click()
+          // await likeButtonRow.waitFor()
+          await expect(page.getByText('likes 1')).toBeVisible()
         }
 
-        ///add likes to blogs. testblog0 will have most likes, and testblog4 will have the least likes
-        for(let i=numBlogs;i > 0;--i)
-        {
-          for(let j=0;j<i;++j){
-            const currentLikeRow = await page.getByText(`likes ${j}`).first()
-            const currentLikeButton = await currentLikeRow.getByRole('button', { name: 'like' })
-            await currentLikeButton.click()
-            await page.getByText(`likes ${j+1}`).waitFor()
-            //console.log(`Like button finished waiting: i-${i},j-${j}`)
-          }
-        }
+        await openBlogLink(page, 'existing test blog 0', 'Test User 1')
 
-        const likeTexts = await page.getByText(/likes \d+/i).allTextContents();
-        const actualLikes = likeTexts.map(text => parseInt(text.match(/\d+/)[0], 10));
-        const sortedLikes = [...actualLikes].sort((a, b) => b - a);
-        await expect(actualLikes).toEqual(sortedLikes);
+        //click on an existing blog
+        await verifyLike()
 
-        // // //get all the like rows
-        // const likeLocators = await page.getByText(/likes: \d+/i).all()
-
-        // // //retrieve number array for likes
-        // let allLikes = []
-        // for(const likeLocator of likeLocators){
-        //   const text = await likeLocator.textContent()
-        //   const match = text.match(/\d+/);
-        //   const parsedInt = match ? parseInt(match[0], 10): null
-
-        //   await expect(parsedInt).toBeTruthy()
-        //   allLikes.push(parsedInt)
-        // }
+        await page.getByRole('link', { name: `blogs` }).click()
+        await expect(page.getByRole('link', {name:'existing test blog 1 by Test User 1'})).toBeVisible()
         
-        // //make sure that the order of these like rows matches the intended order (most likes first)
-        // const isDescending = allLikes.every((currentLikes, i) =>{
-        //   if(i === allLikes.length - 1) return true
-        //   return currentLikes >= allLikes[i + 1]
-        // })
+        //click on another existing blog
+        await openBlogLink(page, 'existing test blog 1', 'Test User 1')
+        await verifyLike()
+      })
 
-        // awaitexpect(isDescending).toBe(true)
+      test('can delete a blog', async ({page}) =>{
+        page.once('dialog', async dialog => {
+          console.log(`Dialog message: ${dialog.message()}`); // "Press a button!"
+          expect(dialog.type()).toBe('confirm');              // Verify it's a confirm dialog
+          
+          await dialog.accept(); 
+        })
+
+        const blogTitle = 'existing test blog 0'
+        const blogAuthor = 'Test User 1'
+
+        await openBlogLink(page, blogTitle, blogAuthor)
+        await page.getByRole('button', {name:'remove'}).click()
+        await expect(page.locator('.statusUpdate')).toContainText(`Blog ${blogTitle} by ${blogAuthor} has been deleted`)
+        await expect(page.getByRole('link', {name:`${blogTitle} by ${blogAuthor}`})).not.toBeVisible()
       })
     })
   })

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import BlogForm from '../components/BlogForm'
+import CreateBlogForm from '../components/CreateBlogForm'
 import { assert, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 
@@ -14,7 +14,7 @@ test('Create blog event is called with the right blog details',
   async () => {
 
     const createBlogMockHandler = vi.fn()
-    render(<BlogForm createBlog={createBlogMockHandler}/>)
+    render(<CreateBlogForm createBlog={createBlogMockHandler}/>)
 
     const user = userEvent.setup()
     const titleInput = screen.getByLabelText('title:')

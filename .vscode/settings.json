@@ -4,5 +4,8 @@
     "eslint.workingDirectories": [{ "mode": "auto" }],
     "[javascript]": {
         "editor.tabSize": 2
+    },
+    "[javascriptreact]": {
+        "editor.tabSize": 2
     }
 }

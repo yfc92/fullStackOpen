@@ -1,5 +1,5 @@
 {
-  "name": "zustand-anecdotes",
+  "name": "coursework",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,8 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "json-server -p 3001 db.json",
-    "test": "vitest run"
+    "server": "json-server -p 3001 db.json"
   },
   "dependencies": {
     "react": "^19.2.4",
@@ -28,7 +27,7 @@
     "globals": "^17.4.0",
     "jsdom": "^29.0.2",
     "json-server": "^1.0.0-beta.15",
-    "vite": "^8.0.1",
+    "vite": "^8.0.4",
     "vitest": "^4.1.4"
   }
 }

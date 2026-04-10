@@ -46,4 +46,4 @@ const remove = async (id) => {
   return data
 }
 
-export default {getAll, create, update, remove }
+export default { getAll, create, update, remove }

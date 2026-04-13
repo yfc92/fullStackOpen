@@ -18,7 +18,12 @@ const createAnecdote = async (newAnecdote) => {
   const response = await fetch(baseUrl, options)
  
   if (!response.ok) {
-    throw new Error('Failed to create anecdote')
+    if(response.status === 400){
+      const serverErrorData = await response.json()
+      // console.log('server error data', serverErrorData)
+      throw new Error(serverErrorData.error)
+    }
+    else throw new Error('Unknown error while creating anecdote')
   }
  
   return await response.json()

@@ -2,19 +2,16 @@ import { useState } from 'react'
 import { TextField, Button, Stack } from '@mui/material'
 
 const CreateBlogForm = ({ createBlog }) => {
-
-
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
-
 
   const createNewBlog = (event) => {
     event.preventDefault()
     const newBlog = {
       title,
       author,
-      url
+      url,
     }
     createBlog(newBlog)
     setTitle('')
@@ -22,7 +19,7 @@ const CreateBlogForm = ({ createBlog }) => {
     setUrl('')
   }
 
-  return(
+  return (
     <form onSubmit={createNewBlog}>
       <div>
         <h2>create new</h2>
@@ -44,7 +41,9 @@ const CreateBlogForm = ({ createBlog }) => {
           />
         </Stack>
       </div>
-      <Button type='submit' variant='contained' style={{ marginTop:10 }}>create</Button>
+      <Button type='submit' variant='contained' style={{ marginTop: 10 }}>
+        create
+      </Button>
     </form>
   )
 }

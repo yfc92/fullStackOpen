@@ -3,17 +3,17 @@ import Blog from '../components/Blog'
 import { expect, test } from 'vitest'
 
 const testBlogData = {
-  title:'testTitle',
-  author:'testAuthor',
-  url:'testUrl',
-  likes:2,
+  title: 'testTitle',
+  author: 'testAuthor',
+  url: 'testUrl',
+  likes: 2,
   user: {
-    username: 'testUser1'
-  }
+    username: 'testUser1',
+  },
 }
 
 const testUser = {
-  username: 'testUser1'
+  username: 'testUser1',
 }
 
 test('Unauthenticated users see blog info but no buttons', () => {
@@ -27,45 +27,39 @@ test('Unauthenticated users see blog info but no buttons', () => {
   screen.getByText(`${testBlogData.likes} likes`)
 
   //like button is absent
-  const likeButton = screen.queryByRole('button', { name:/like/i })
+  const likeButton = screen.queryByRole('button', { name: /like/i })
   expect(likeButton).toBeNull()
 
   //remove button is absent
-  const removeButton = screen.queryByRole('button', { name:/remove/i })
+  const removeButton = screen.queryByRole('button', { name: /remove/i })
   expect(removeButton).toBeNull()
 })
-
 
 test(`Authenticated users who are not the blog's creator 
   are shown only the like button`, () => {
   const nonCreatorUser = {
-    username: 'testUser2'
+    username: 'testUser2',
   }
 
-  render(<Blog blog={testBlogData}
-    user={nonCreatorUser}
-  />)
+  render(<Blog blog={testBlogData} user={nonCreatorUser} />)
 
   //like button is present
-  screen.getByRole('button', { name:/like/i })
+  screen.getByRole('button', { name: /like/i })
 
   //remove button is absent
-  const removeButton = screen.queryByRole('button', { name:/remove/i })
+  const removeButton = screen.queryByRole('button', { name: /remove/i })
   expect(removeButton).toBeNull()
 })
 
 test('Blog\'s creator is shown the remove button', () => {
-  render(<Blog blog={testBlogData}
-    user={testUser}
-  />)
+  render(<Blog blog={testBlogData} user={testUser} />)
 
   //like button is present
-  screen.getByRole('button', { name:/like/i })
+  screen.getByRole('button', { name: /like/i })
 
   //remove button is present
-  screen.getByRole('button', { name:/remove/i })
+  screen.getByRole('button', { name: /remove/i })
 })
-
 
 // test('Render title/author but not url/likes', () => {
 

@@ -1,18 +1,19 @@
 import { useState } from 'react'
 import { TextField, Button, Stack } from '@mui/material'
 
-
 const Login = ({ handleLogin }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  return(
-    <form onSubmit={async (event) => {
-      event.preventDefault()
-      await handleLogin(username, password)
-      setUsername('')
-      setPassword('')
-    }}>
+  return (
+    <form
+      onSubmit={async (event) => {
+        event.preventDefault()
+        await handleLogin(username, password)
+        setUsername('')
+        setPassword('')
+      }}
+    >
       <div>
         <h2>Log in to application</h2>
         <Stack spacing={2} sx={{ width: '300px' }}>
@@ -29,7 +30,9 @@ const Login = ({ handleLogin }) => {
           />
         </Stack>
       </div>
-      <Button type='submit' variant="contained" style={{ marginTop: 10 }}>login</Button>
+      <Button type='submit' variant='contained' style={{ marginTop: 10 }}>
+        login
+      </Button>
     </form>
   )
 }

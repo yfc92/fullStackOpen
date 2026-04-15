@@ -1,17 +1,23 @@
 // import { useState } from 'react'
-import { TextField, Button, Stack, Typography, Box, Paper, Link } from '@mui/material'
-
+import {
+  TextField,
+  Button,
+  Stack,
+  Typography,
+  Box,
+  Paper,
+  Link,
+} from '@mui/material'
 
 const Blog = ({ blog, user, addLike, removeBlog }) => {
-
-  if(!blog){
+  if (!blog) {
     return null
   }
 
   const isLoggedIn = !!user
   const checkRemovable = (user, blog) => {
     // console.log('check removable. user:', user, ' blog user:',blog.user)
-    if(!user || !blog.user) return false
+    if (!user || !blog.user) return false
     return user.username === blog.user.username
   }
   const canRemove = checkRemovable(user, blog)
@@ -24,36 +30,47 @@ const Blog = ({ blog, user, addLike, removeBlog }) => {
   //     </p>
   //     {blog.user && <p>Added by {blog.user.name}</p>}
   //     {canRemove && <button onClick={removeBlog}>remove</button>}
-  return(
+  return (
     <Box
       sx={{
         lineHeight: 2,
-        mt:1
+        mt: 1,
       }}
     >
       <Paper elevation={2} sx={{ p: 1 }}>
-        <Typography variant="h6">
-          {blog.title}
-        </Typography>
-        <Typography variant="subtitle1">
-          by {blog.author}
-        </Typography>
-        <Link href={blog.url} id='blog-url'>{blog.url}</Link>
-        {blog.user &&
-          <Typography variant="body2" component="p">
+        <Typography variant='h6'>{blog.title}</Typography>
+        <Typography variant='subtitle1'>by {blog.author}</Typography>
+        <Link href={blog.url} id='blog-url'>
+          {blog.url}
+        </Link>
+        {blog.user && (
+          <Typography variant='body2' component='p'>
             Added by {blog.user.name}
-          </Typography>}
+          </Typography>
+        )}
         <Stack
           direction='row'
           spacing={1}
           alignitems='center'
           sx={{ width: 'fit-content' }}
         >
-          <Typography variant="body2" component="p" sx={{ fontWeight:'bold', alignContent:'center' }}>
+          <Typography
+            variant='body2'
+            component='p'
+            sx={{ fontWeight: 'bold', alignContent: 'center' }}
+          >
             {blog.likes} likes
           </Typography>
-          {isLoggedIn && <Button variant='outlined' onClick={addLike}>like</Button>}
-          {canRemove && <Button variant='outlined' color='error' onClick={removeBlog}>remove</Button>}
+          {isLoggedIn && (
+            <Button variant='outlined' onClick={addLike}>
+              like
+            </Button>
+          )}
+          {canRemove && (
+            <Button variant='outlined' color='error' onClick={removeBlog}>
+              remove
+            </Button>
+          )}
         </Stack>
       </Paper>
     </Box>

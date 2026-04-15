@@ -1,17 +1,17 @@
-import { useState } from 'react'
 import { TextField, Button, Stack } from '@mui/material'
+import { useField } from '../hooks'
 
 const Login = ({ handleLogin }) => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const { reset:resetUsername, ...username } = useField('text')
+  const { reset:resetPassword, ...password } = useField('password')
 
   return (
     <form
       onSubmit={async (event) => {
         event.preventDefault()
-        await handleLogin(username, password)
-        setUsername('')
-        setPassword('')
+        await handleLogin(username.value, password.value)
+        resetUsername()
+        resetPassword()
       }}
     >
       <div>
@@ -19,14 +19,11 @@ const Login = ({ handleLogin }) => {
         <Stack spacing={2} sx={{ width: '300px' }}>
           <TextField
             label='username'
-            value={username}
-            onChange={({ target }) => setUsername(target.value)}
+            {...username}
           />
           <TextField
-            type='password'
             label='password'
-            value={password}
-            onChange={({ target }) => setPassword(target.value)}
+            {...password}
           />
         </Stack>
       </div>

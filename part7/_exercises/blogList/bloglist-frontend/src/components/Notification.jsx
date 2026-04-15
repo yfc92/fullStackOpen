@@ -1,7 +1,7 @@
 import { Alert } from '@mui/material'
 
 const Notification = ({ message }) => {
-  if (message === null) {
+  if (!message || !message.content) {
     return null
   }
 

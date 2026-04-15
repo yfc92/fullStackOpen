@@ -1,22 +1,23 @@
-import { useState } from 'react'
 import { TextField, Button, Stack } from '@mui/material'
+import { useField } from '../hooks'
 
 const CreateBlogForm = ({ createBlog }) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+
+  const { reset:resetTitle, ...title } = useField('text')
+  const { reset:resetAuthor, ...author } = useField('text')
+  const { reset:resetUrl, ...url } = useField('text')
 
   const createNewBlog = (event) => {
     event.preventDefault()
     const newBlog = {
-      title,
-      author,
-      url,
+      title: title.value,
+      author: author.value,
+      url: url.value,
     }
     createBlog(newBlog)
-    setTitle('')
-    setAuthor('')
-    setUrl('')
+    resetTitle()
+    resetAuthor()
+    resetUrl()
   }
 
   return (
@@ -26,18 +27,15 @@ const CreateBlogForm = ({ createBlog }) => {
         <Stack spacing={2} sx={{ width: '300px' }}>
           <TextField
             label='title'
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
+            {...title}
           />
           <TextField
             label='author'
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
+            {...author}
           />
           <TextField
             label='url'
-            value={url}
-            onChange={({ target }) => setUrl(target.value)}
+            {...url}
           />
         </Stack>
       </div>

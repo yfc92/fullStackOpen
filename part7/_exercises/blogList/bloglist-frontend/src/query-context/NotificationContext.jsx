@@ -1,12 +1,23 @@
-import { useState, createContext } from 'react'
+import { useState, createContext, useReducer } from 'react'
 
 const NotificationContext = createContext()
 
 export default NotificationContext
 
 export const NotificationContextProvider = (props) => {
-
-  const [message, setMessage] = useState({ content: '', isError:false })
+  const notifyActionType = 'notify'
+  const reducer = (state, action) => {
+    //console.log('notification reducer called. state:', state,' action:', action)
+    if(action.type === notifyActionType){
+      return {
+        ...action.nextMessage
+      }
+    }
+    throw Error('Unknown action.')
+  }
+  const defaultMessage = { content: '', isError:false }
+  //const [message, setMessage] = useState({ content: '', isError:false })
+  const [message, dispatch] = useReducer(reducer, defaultMessage)
 
   const [timeoutId, setTimeoutID] = useState(null)
 
@@ -14,9 +25,19 @@ export const NotificationContextProvider = (props) => {
     if(timeoutId){
       clearTimeout(timeoutId)
     }
-    setMessage(newMessage)
+
+    dispatch({
+      type: notifyActionType,
+      nextMessage: newMessage
+    })
+    //setMessage(newMessage)
+
     const newTimeoutId = setTimeout(() => {
-      setMessage({ content: '', isError:false })
+      dispatch({
+        type: notifyActionType,
+        nextMessage: defaultMessage
+      })
+      //setMessage(defaultMessage)
     }, 5000)
     setTimeoutID(newTimeoutId)
   }
@@ -24,7 +45,7 @@ export const NotificationContextProvider = (props) => {
 
   return(
     <NotificationContext.Provider value={ { message, notify } }>
-      {props}
+      {props.children}
     </NotificationContext.Provider>
   )
 

@@ -78,7 +78,7 @@ const App = () => {
   const handleCreate = async (blogData) => {
     try {
       const newBlog = await createBlog(blogData)
-      console.log('new blog created', newBlog)
+      // console.log('new blog created', newBlog)
       navigate('/')
       notify({
         content: `A new blog ${newBlog.title} by ${newBlog.author} added`,

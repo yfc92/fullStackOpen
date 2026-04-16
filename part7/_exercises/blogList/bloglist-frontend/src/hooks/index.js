@@ -87,7 +87,7 @@ export const useBlog = () => {
       deleteBlog: deleteBlog_zustand,
       initialize: initialize_zustand,
       addLike: addLike_zustand,
-      addComment_zustand
+      addComment: addComment_zustand
     })
   } else if (apiType === apiType_query_context) {
     return({

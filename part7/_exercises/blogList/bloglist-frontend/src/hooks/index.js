@@ -13,6 +13,7 @@ import { useContext } from 'react'
 import NotificationContext from '../query-context/NotificationContext'
 import useBlogs_qc from '../query-context/useBlogs'
 import UserContext from '../query-context/UserContext'
+import useUsers_query from '../query-context/useUsers'
 
 const apiType_zustand = 'zustand'
 const apiType_query_context = 'query-context'
@@ -65,7 +66,8 @@ export const useBlog = () => {
     createBlog: createBlog_zustand,
     deleteBlog: deleteBlog_zustand,
     initialize: initialize_zustand,
-    addLike: addLike_zustand
+    addLike: addLike_zustand,
+    addComment: addComment_zustand
   } = useBlogActions_zustand()
 
   const {
@@ -73,7 +75,8 @@ export const useBlog = () => {
     createBlog: createBlog_qc,
     deleteBlog: deleteBlog_qc,
     initialize: initialize_qc,
-    addLike: addLike_qc
+    addLike: addLike_qc,
+    addComment: addComment_qc
   } = useBlogs_qc()
 
   if(apiType === apiType_zustand)
@@ -83,7 +86,8 @@ export const useBlog = () => {
       createBlog: createBlog_zustand,
       deleteBlog: deleteBlog_zustand,
       initialize: initialize_zustand,
-      addLike: addLike_zustand
+      addLike: addLike_zustand,
+      addComment_zustand
     })
   } else if (apiType === apiType_query_context) {
     return({
@@ -91,13 +95,14 @@ export const useBlog = () => {
       createBlog: createBlog_qc,
       deleteBlog: deleteBlog_qc,
       initialize: initialize_qc,
-      addLike: addLike_qc
+      addLike: addLike_qc,
+      addComment: addComment_qc
     })
   }
   throw new Error('Unknown api type')
 }
 
-export const useUser = () => {
+export const useLocalUser = () => {
   const apiType = apiType_query_context
 
   const user_zustand = useUser_zustand()
@@ -132,4 +137,11 @@ export const useUser = () => {
   }
 
   throw new Error('Unknown api type')
+}
+
+export const useUsers = () => {
+  const { users } = useUsers_query()
+  return {
+    users
+  }
 }

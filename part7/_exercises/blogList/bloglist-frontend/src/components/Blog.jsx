@@ -5,11 +5,22 @@ import {
   Box,
   Paper,
   Link,
+  TextField
 } from '@mui/material'
+import TextList from './TextList'
+import { useField } from '../hooks'
 
-const Blog = ({ blog, user, addLike, removeBlog }) => {
+const Blog = ({ blog, user, addLike, removeBlog, addComment }) => {
+  const { reset:resetNewComment, ...newComment } = useField('text')
+
   if (!blog) {
+    // throw new Error('Blog not found')
     return null
+  }
+
+  const handleAddComment = async () => {
+    await addComment(blog, newComment.value)
+    resetNewComment()
   }
 
   const isLoggedIn = !!user
@@ -62,6 +73,22 @@ const Blog = ({ blog, user, addLike, removeBlog }) => {
             </Button>
           )}
         </Stack>
+        <Typography variant='h6' sx={{ mt:2 }}>comments</Typography>
+        <Stack
+          direction='row'
+          spacing={1}
+          alignitems='center'
+          sx={{ width: 'fit-content' }}
+        >
+          <TextField
+            label='new comment'
+            {...newComment}
+          />
+          <Button variant='outlined' onClick={handleAddComment} variant='contained'>
+            Add Comment
+          </Button>
+        </Stack>
+        <TextList list={blog.comments} />
       </Paper>
     </Box>
   )

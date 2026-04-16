@@ -1,21 +1,18 @@
-import { Link as RouterLink } from 'react-router-dom'
-import { Link } from '@mui/material'
-
-const BlogList = ({ blogs }) => {
-  if (!blogs) return null
-  //throw new Error('Simulated bloglist error')
+import { Typography } from '@mui/material'
+import LinkedText from './LinkedText'
+const BlogList = ({ blogs, title }) => {
   return (
     <div>
-      <h2>blogs</h2>
+      <Typography variant='h6' sx={{ fontWeight: 'bold', mt: 2 }}>{title}</Typography>
       <ul>
-        {blogs
+        {blogs && blogs
           .sort((a, b) => b.likes - a.likes)
           .map((blog) => {
             return (
               <li key={blog.id}>
-                <Link component={RouterLink} to={`/blogs/${blog.id}`}>
-                  {blog.title} by {blog.author}
-                </Link>
+                <LinkedText
+                  link={`/blogs/${blog.id}`}
+                  text={`${blog.title} by ${blog.author}`} />
               </li>
             )
           })}

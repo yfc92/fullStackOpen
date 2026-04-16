@@ -90,4 +90,28 @@ blogsRouter.put('/:id', async (request, response) => {
   response.json(blog)
 })
 
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const { content:newComment } = request.body
+
+  //TODO: enable if authorization is required
+  // const user = request.user
+  // if(!user || !user.id){
+  //   return response.status(401).json({ 'error': 'token invalid' })
+  // }
+
+  const blog = await Blog.findById(request.params.id)
+  if(!blog){
+    return response.status(404).end()
+  }
+
+  console.log('Comment received', newComment, 'blog', blog)
+
+  let newComments = [...(blog.comments ?? []), newComment]
+  Object.assign(blog, { comments:newComments })
+  console.log('updated blog', blog)
+  await blog.save()
+  await blog.populate('user', { username:1, name:1, id:1 })
+  response.status(201).json(blog)
+})
+
 module.exports = blogsRouter

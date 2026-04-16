@@ -45,13 +45,21 @@ const useBlogs = () => {
     },
   })
 
+  const addCommentMutation = useMutation({
+    mutationFn: blogService.addComment,
+    onSuccess: (updatedBlog) => {
+      queryClient.invalidateQueries({ queryKey: [queryKey] })
+    },
+  })
+
   return {
     blogs: result.data,
     createBlog: (blog) => newBlogMutation.mutateAsync(blog),
     addLike: (blog) =>
       updateBlogMutation.mutateAsync({ ...blog, likes: blog.likes + 1, user: blog.user?.id }),
     deleteBlog: (id) => deleteBlogMutation.mutateAsync(id),
-    initialize: defaultInit
+    initialize: defaultInit,
+    addComment: (blog, comment) => addCommentMutation.mutateAsync({ blog, comment })
   }
 }
 

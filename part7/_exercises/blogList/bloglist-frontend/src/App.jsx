@@ -7,7 +7,9 @@ import Blog from './components/Blog'
 import Notification from './components/Notification'
 import CreateBlogForm from './components/CreateBlogForm'
 import BlogList from './components/BlogList'
-import { useBlog, useNotification, useUser } from './hooks'
+import { useBlog, useNotification, useLocalUser, useUsers } from './hooks'
+import UserList from './components/UserList'
+import UserInfo from './components/UserInfo'
 
 const ErrorFallback = ({ error }) => {
   console.log('Error callback called')
@@ -37,7 +39,8 @@ const App = () => {
     createBlog,
     deleteBlog,
     addLike,
-    initialize: initializeBlogs
+    initialize: initializeBlogs,
+    addComment
   } = useBlog()
 
   const {
@@ -45,12 +48,22 @@ const App = () => {
     initialize: initializeUser,
     login,
     logout,
-  } = useUser()
+  } = useLocalUser()
+
+  const { users } = useUsers()
 
   const blogMatch = useMatch('/blogs/:id')
-  const idMatchedBlog = blogMatch
+  const idMatchedBlog = blogMatch && blogs
     ? blogs.find((blog) => blog.id === blogMatch.params.id)
     : null
+
+  //console.log('Matched blog', idMatchedBlog, 'blog count', blogs?.length)
+
+  const userMatch = useMatch('/users/:id')
+  const idMatchedUser = userMatch && users
+    ? users.find(user => user.id === userMatch.params.id)
+    : null
+  //console.log('Matched user', idMatchedUser, 'user count', users?.length)
 
   useEffect(() => {
     initializeUser()
@@ -117,6 +130,9 @@ const App = () => {
           <Button color='inherit' onClick={() => navigate('/')}>
             blogs
           </Button>
+          <Button color='inherit' onClick={() => navigate('/users')}>
+            users
+          </Button>
           {!user && (
             <Button color='inherit' onClick={() => navigate('/login')}>
               Login
@@ -141,7 +157,7 @@ const App = () => {
           path='/'
           element={
             <ErrorBoundary FallbackComponent={ErrorFallback}>
-              <BlogList blogs={blogs} />
+              <BlogList blogs={blogs} title='Blogs' />
             </ErrorBoundary>
           }
         />
@@ -155,6 +171,7 @@ const App = () => {
                 user={user}
                 addLike={() => addLike(idMatchedBlog)}
                 removeBlog={() => removeBlog(idMatchedBlog)}
+                addComment={addComment}
               />
             </ErrorBoundary>
           }
@@ -164,6 +181,22 @@ const App = () => {
           element={
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <CreateBlogForm createBlog={handleCreate} />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path='/users'
+          element={
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              <UserList users={users} />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path='/users/:id'
+          element={
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              <UserInfo user={idMatchedUser} />
             </ErrorBoundary>
           }
         />
